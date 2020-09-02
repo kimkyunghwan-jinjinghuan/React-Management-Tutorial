@@ -21,35 +21,52 @@ const styles = (theme) => ({
   },
 });
 
-const custormers = [
-  {
-    id: 1,
-    image: "https://placeimg.com/64/64/1",
-    name: "EBRA",
-    birthday: "900914",
-    gender: "남자",
-    job: "무직",
-  },
-  {
-    id: 2,
-    image: "https://placeimg.com/64/64/2",
-    name: "MESSI",
-    birthday: "870914",
-    gender: "남자",
-    job: "무직",
-  },
-  {
-    id: 3,
-    image: "https://placeimg.com/64/64/3",
-    name: "COCU",
-    birthday: "760914",
-    gender: "남자",
-    job: "축구선수",
-  },
-];
-//위 부분이 데이터베이스에 스테이트로
+// const custormers = [
+//   {
+//     id: 1,
+//     image: "https://placeimg.com/64/64/1",
+//     name: "EBRA",
+//     birthday: "900914",
+//     gender: "남자",
+//     job: "무직",
+//   },
+//   {
+//     id: 2,
+//     image: "https://placeimg.com/64/64/2",
+//     name: "MESSI",
+//     birthday: "870914",
+//     gender: "남자",
+//     job: "무직",
+//   },
+//   {
+//     id: 3,
+//     image: "https://placeimg.com/64/64/3",
+//     name: "COCU",
+//     birthday: "760914",
+//     gender: "남자",
+//     job: "축구선수",
+//   },
+// ];
+// //위 부분이 데이터베이스에 스테이트로
 
 class App extends Component {
+  state = {
+    customers: "",
+  };
+
+  componentDidMount() {
+    this.callApi()
+      .then((res) => this.setState({ customers: res })) //res는 배열 [ {},{},{} ]
+      .catch((err) => console.log(err));
+  }
+
+  //async function(papam){ }
+  callApi = async () => {
+    const response = await fetch("/api/customers");
+    const body = await response.json();
+    return body;
+  };
+
   render() {
     const { classes } = this.props;
     // console.log(classes);
@@ -68,19 +85,21 @@ class App extends Component {
           <TableBody>
             {
               //customers배열을 c로 순회 travers한다
-              custormers.map((c) => {
-                return (
-                  <Customer
-                    key={c.id}
-                    id={c.id}
-                    image={c.image}
-                    name={c.name}
-                    birthday={c.birthday}
-                    gender={c.gender}
-                    job={c.job}
-                  ></Customer>
-                );
-              })
+              this.state.customers
+                ? this.state.customers.map((c) => {
+                    return (
+                      <Customer
+                        key={c.id}
+                        id={c.id}
+                        image={c.image}
+                        name={c.name}
+                        birthday={c.birthday}
+                        gender={c.gender}
+                        job={c.job}
+                      ></Customer>
+                    );
+                  })
+                : ""
             }
           </TableBody>
         </Table>
