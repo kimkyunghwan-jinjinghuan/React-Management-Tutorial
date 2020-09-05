@@ -9,6 +9,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import { withStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const styles = (theme) => ({
   root: {
@@ -18,6 +19,9 @@ const styles = (theme) => ({
   },
   table: {
     minWidth: 1080,
+  },
+  progress: {
+    marginp: theme.spacing(2),
   },
 });
 
@@ -47,24 +51,31 @@ const styles = (theme) => ({
 //     job: "축구선수",
 //   },
 // ];
-// //위 부분이 데이터베이스에 스테이트로
+// //위 부분이 데이터베이스에 스테이트로 여기 있던 데이터들이 server.js로
 
 class App extends Component {
   state = {
     customers: "",
+    completed: 0,
   };
 
   componentDidMount() {
+    this.timer = setInterval(this.progress, 20); //progress함수가 0.2초마다 실행되도록
     this.callApi()
       .then((res) => this.setState({ customers: res })) //res는 배열 [ {},{},{} ]
       .catch((err) => console.log(err));
   }
 
-  //async function(papam){ }
+  //async function(param){ }
   callApi = async () => {
     const response = await fetch("/api/customers");
     const body = await response.json();
     return body;
+  };
+
+  progress = () => {
+    const { completed } = this.state;
+    this.setState({ completed: completed >= 100 ? 0 : completed + 1 });
   };
 
   render() {
@@ -85,21 +96,31 @@ class App extends Component {
           <TableBody>
             {
               //customers배열을 c로 순회 travers한다
-              this.state.customers
-                ? this.state.customers.map((c) => {
-                    return (
-                      <Customer
-                        key={c.id}
-                        id={c.id}
-                        image={c.image}
-                        name={c.name}
-                        birthday={c.birthday}
-                        gender={c.gender}
-                        job={c.job}
-                      ></Customer>
-                    );
-                  })
-                : ""
+              this.state.customers ? (
+                this.state.customers.map((c) => {
+                  return (
+                    <Customer
+                      key={c.id}
+                      id={c.id}
+                      image={c.image}
+                      name={c.name}
+                      birthday={c.birthday}
+                      gender={c.gender}
+                      job={c.job}
+                    ></Customer>
+                  );
+                })
+              ) : (
+                <TableRow>
+                  <TableCell colSpan="6" align="center">
+                    <CircularProgress
+                      className={classes.progress}
+                      variant="determinate"
+                      value={this.state.completed}
+                    />
+                  </TableCell>
+                </TableRow>
+              )
             }
           </TableBody>
         </Table>
