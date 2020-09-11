@@ -113,14 +113,17 @@ class App extends Component {
               <TableCell>생년월일</TableCell>
               <TableCell>성별</TableCell>
               <TableCell>직업</TableCell>
+              <TableCell>설정</TableCell>
             </TableHead>
             <TableBody>
               {
                 //customers배열을 c로 순회 travers한다
                 this.state.customers ? (
                   this.state.customers.map((c) => {
+                    //map()함수덕분에 반복타이핑을 안해도되는
                     return (
                       <Customer
+                        stateRefresh={this.stateRefresh}
                         key={c.id}
                         id={c.id}
                         image={c.image}

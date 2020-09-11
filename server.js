@@ -31,9 +31,12 @@ app.get("/api/hello", (req, res) => {
 });
 
 app.get("/api/customers", (req, res) => {
-  connection.query("SELECT * FROM CUSTOMER", (err, rows, fields) => {
-    res.send(rows);
-  });
+  connection.query(
+    "SELECT * FROM CUSTOMER WHERE isDeleted = 0",
+    (err, rows, fields) => {
+      res.send(rows);
+    }
+  );
   //고객데이터 삽입요청 처리해주기
   //사용자로부터 이미지사진도 받아와야 파일처리를 위해 multer라이브러리 설치해준다
 });
@@ -75,7 +78,7 @@ app.use(
 
 app.post("/api/customers", upload.single("image"), (req, res) => {
   //바이너리파일 받아올 변수 image설정
-  let sql = "INSERT INTO CUSTOMER VALUES (null, ?, ?, ?, ?, ?)"; //sql문 준비해주고, db에서 auto-increment설정해줬고
+  let sql = "INSERT INTO CUSTOMER VALUES (null, ?, ?, ?, ?, ?, now(), 0)"; //sql문 준비해주고, db에서 auto-increment설정해줬고, 0 삭제되지 않은 상태값
   let image =
     "/Users/kimkyunghwan/React-Project-Tutorial/management/image/" +
     req.file.filename;
@@ -90,7 +93,7 @@ app.post("/api/customers", upload.single("image"), (req, res) => {
   console.log(job);
   let params = [image, name, birthday, gender, job];
 
-  //query(변수1, 변수2, 함수객체콜백함수)
+  //query(변수1, 변수2, 함수객체콜백함수)s
   connection.query(sql, params, (err, rows, fields) => {
     res.send(rows);
     console.log(err);
@@ -98,6 +101,15 @@ app.post("/api/customers", upload.single("image"), (req, res) => {
   });
 });
 
+app.delete("/api/customers/:id", (req, res) => {
+  let sql = "UPDATE CUSTOMER SET isDeleted = 1 WHERE id=?"; //:id 이게 params구나 index.d.ts에 정의되어있다
+  console.log(req.params);
+  let params = [req.params.id];
+  connection.query(sql, params, (err, rows, fields) => {
+    res.send(rows);
+  });
+});
+
 //해당 포트번호로 데이터요청을 듣고 있게 한다
 // ${ } 달러기호 붙이기 템플릿리터럴내에서 변수사용
-app.listen(port, () => console.log(`Listening on port ${port}`));
+app.listen(port, () => console.log(`Listening on port ${port}`)); //포트번호 3000
