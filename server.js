@@ -22,6 +22,9 @@ const connection = mysql.createConnection({
 });
 connection.connect();
 
+const multer = require("multer");
+const upload = multer({ dest: "./upload" }); //사용자의 파일이 업로드파일에, 여기서 내가 multer라고 해야하는데 require오타내서 시간을...
+
 //해당주소로 들어오고, 함수작동하게
 app.get("/api/hello", (req, res) => {
   res.send({ mesage: "Hello Express!" });
@@ -31,6 +34,8 @@ app.get("/api/customers", (req, res) => {
   connection.query("SELECT * FROM CUSTOMER", (err, rows, fields) => {
     res.send(rows);
   });
+  //고객데이터 삽입요청 처리해주기
+  //사용자로부터 이미지사진도 받아와야 파일처리를 위해 multer라이브러리 설치해준다
 });
 
 // [
@@ -60,6 +65,38 @@ app.get("/api/customers", (req, res) => {
 //   },
 // ]
 //하드코딩된 데이터는 필요없게 된다. 디비와 연동할거니까
+
+app.use(
+  "/Users/kimkyunghwan/React-Project-Tutorial/management/image",
+  express.static("./upload")
+);
+//업로드폴더를 공유하도록
+//이미지폴더에서 해당 업로드폴더에 접근할 수 있도록
+
+app.post("/api/customers", upload.single("image"), (req, res) => {
+  //바이너리파일 받아올 변수 image설정
+  let sql = "INSERT INTO CUSTOMER VALUES (null, ?, ?, ?, ?, ?)"; //sql문 준비해주고, db에서 auto-increment설정해줬고
+  let image =
+    "/Users/kimkyunghwan/React-Project-Tutorial/management/image/" +
+    req.file.filename;
+  let name = req.body.name; //request body
+  let birthday = req.body.birthday;
+  let gender = req.body.gender;
+  let job = req.body.job;
+  console.log(image); //데이터 확인용
+  console.log(name);
+  console.log(birthday);
+  console.log(gender);
+  console.log(job);
+  let params = [image, name, birthday, gender, job];
+
+  //query(변수1, 변수2, 함수객체콜백함수)
+  connection.query(sql, params, (err, rows, fields) => {
+    res.send(rows);
+    console.log(err);
+    console.log(rows);
+  });
+});
 
 //해당 포트번호로 데이터요청을 듣고 있게 한다
 // ${ } 달러기호 붙이기 템플릿리터럴내에서 변수사용
