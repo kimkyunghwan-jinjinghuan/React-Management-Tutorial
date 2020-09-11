@@ -102,7 +102,7 @@ app.post("/api/customers", upload.single("image"), (req, res) => {
 });
 
 app.delete("/api/customers/:id", (req, res) => {
-  let sql = "UPDATE CUSTOMER SET isDeleted = 1 WHERE id=?"; //:id 이게 params구나 index.d.ts에 정의되어있다
+  let sql = "UPDATE CUSTOMER SET isDeleted = 1 WHERE id=?"; //:id 이게 params구나 index.d.ts에 정의되어있다. 동적인 부분이 파라미터
   console.log(req.params);
   let params = [req.params.id];
   connection.query(sql, params, (err, rows, fields) => {
